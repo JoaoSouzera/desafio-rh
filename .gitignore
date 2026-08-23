@@ -16,7 +16,8 @@ backend/target/
 .idea/
 .vscode/
 *.iml
-
+# Cópias de segurança criadas por editores
+*~
 # OS
 .DS_Store
 Thumbs.db
