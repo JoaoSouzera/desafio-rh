@@ -9,4 +9,5 @@ import org.springframework.stereotype.Service;
 public class FuncionarioService {
     private final FuncionarioRepository repository;
 
+    public
 }
