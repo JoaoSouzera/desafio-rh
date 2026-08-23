@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class FuncionarioRepository {
     ArrayList<Funcionario> funcionarios = new ArrayList<>();
+    Integer contador = 0;
 
     public void salvar(Funcionario funcionario) {
         funcionarios.add(funcionario);
@@ -14,4 +15,9 @@ public class FuncionarioRepository {
         return funcionarios;
     }
 
+    public Integer geradorId() {
+        Integer id = contador + 1;
+        this.contador = id;
+        return id;
+    }
 }
