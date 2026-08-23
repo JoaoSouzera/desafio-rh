@@ -1,5 +1,6 @@
 package com.desafiorh.backend.dto.request;
 
+import com.desafiorh.backend.enums.StatusFuncionario;
 import jakarta.validation.constraints.NotBlank;
 
 public record FuncionarioRequestDTO(
@@ -12,6 +13,7 @@ public record FuncionarioRequestDTO(
         String cargo,
         String departamento,
         double salario,
-        String cidade
+        String cidade,
+        StatusFuncionario status
 ) {
 }
