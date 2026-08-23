@@ -8,6 +8,9 @@ import com.desafiorh.backend.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FuncionarioService {
@@ -19,5 +22,8 @@ public class FuncionarioService {
         funcionario.setId(repository.geradorId());
         repository.salvar(funcionario);
         return FuncionarioMapper.toFuncionarioResponseDTO(funcionario);
+    }
+    public List<FuncionarioResponseDTO> listar(){
+        return repository.listar().stream().map(FuncionarioMapper::toFuncionarioResponseDTO).toList();
     }
 }
