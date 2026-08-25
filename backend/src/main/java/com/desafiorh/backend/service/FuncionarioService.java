@@ -6,7 +6,9 @@ import com.desafiorh.backend.mapper.FuncionarioMapper;
 import com.desafiorh.backend.model.Funcionario;
 import com.desafiorh.backend.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,5 +27,25 @@ public class FuncionarioService {
     }
     public List<FuncionarioResponseDTO> listar(){
         return repository.listar().stream().map(FuncionarioMapper::toFuncionarioResponseDTO).toList();
+    }
+    public FuncionarioResponseDTO pegarPorId(Integer id) {
+    Funcionario funcionario = repository.pegarPorId(id);
+    if (funcionario == null) {
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Funcionário não encontrado"
+        );
+    }
+    return FuncionarioMapper.toFuncionarioResponseDTO(funcionario);
+    }
+    public void deletar(Integer id) {
+        Funcionario funcionario = repository.pegarPorId(id);
+        if (funcionario == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Funcionário não encontrado"
+            );
+        }
+        repository.deletar(funcionario);
     }
 }

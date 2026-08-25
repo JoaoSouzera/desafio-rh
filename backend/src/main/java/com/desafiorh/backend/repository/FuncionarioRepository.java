@@ -21,4 +21,16 @@ public class FuncionarioRepository {
         this.contador = id;
         return id;
     }
+
+    public Funcionario pegarPorId(Integer id) {
+        for (Funcionario funcionario : funcionarios) {
+            if (funcionario.getId().equals(id)) {
+                return funcionario;
+            }
+        }
+        return null;
+    }
+    public void deletar(Funcionario funcionario) {
+        funcionarios.remove(funcionario);
+    }
 }
