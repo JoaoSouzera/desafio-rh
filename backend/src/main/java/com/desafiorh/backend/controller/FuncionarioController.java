@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/funcionarios")
@@ -23,5 +24,14 @@ public class FuncionarioController {
     @GetMapping
     public List<FuncionarioResponseDTO> listar() {
         return service.listar();
+    }
+    @GetMapping("/{id}")
+    public FuncionarioResponseDTO pegarPorId(@PathVariable Integer id) {
+        return service.pegarPorId(id);
+    }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletar(@PathVariable Integer id) {
+        service.deletar(id);
     }
 }
