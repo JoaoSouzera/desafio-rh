@@ -31,7 +31,7 @@ public class FuncionarioService {
         return repository.listar().stream().map(FuncionarioMapper::toFuncionarioResponseDTO).toList();
     }
 
-    public List<FuncionarioResponseDTO> listarComFiltro(String param) {
+    public List<FuncionarioResponseDTO> buscarComFiltro(String param) {
         return repository.buscarComFiltro(param).stream().map(FuncionarioMapper::toFuncionarioResponseDTO).toList();
     }
 

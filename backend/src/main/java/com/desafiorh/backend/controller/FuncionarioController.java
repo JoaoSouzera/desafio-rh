@@ -23,12 +23,6 @@ public class FuncionarioController {
     public FuncionarioResponseDTO criar(@RequestBody @Valid FuncionarioRequestDTO funcionarioRequestDTO) {
         return service.criar(funcionarioRequestDTO);
     }
-
-    @GetMapping
-    public List<FuncionarioResponseDTO> listar() {
-        return service.listar();
-    }
-
     @GetMapping("/{id}")
     public FuncionarioResponseDTO pegarPorId(@PathVariable Integer id) {
         return service.pegarPorId(id);
@@ -37,7 +31,7 @@ public class FuncionarioController {
     @GetMapping
     public List<FuncionarioResponseDTO> listarComFiltro(
             @RequestParam(required = false) String busca) {
-        return service.listarComFiltro(busca);
+        return service.buscarComFiltro(busca);
     }
 
     @PutMapping("/{id}")
