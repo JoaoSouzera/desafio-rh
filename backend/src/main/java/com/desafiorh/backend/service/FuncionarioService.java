@@ -31,6 +31,10 @@ public class FuncionarioService {
         return repository.listar().stream().map(FuncionarioMapper::toFuncionarioResponseDTO).toList();
     }
 
+    public List<FuncionarioResponseDTO> listarComFiltro(String param) {
+        return repository.buscarComFiltro(param).stream().map(FuncionarioMapper::toFuncionarioResponseDTO).toList();
+    }
+
     public FuncionarioResponseDTO pegarPorId(Integer id) {
         Funcionario funcionario = repository.pegarPorId(id);
         if (funcionario == null) {
