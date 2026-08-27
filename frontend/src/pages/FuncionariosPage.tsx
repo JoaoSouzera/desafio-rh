@@ -11,6 +11,14 @@ import {
 import type { Funcionario } from '../types/Funcionario'
 import './FuncionariosPage.css'
 
+function normalizarTexto(texto: string) {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replaceAll('_', ' ')
+    .toLocaleLowerCase('pt-BR')
+}
+
 function FuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -43,11 +51,19 @@ function FuncionariosPage() {
     void carregarFuncionarios()
   }, [])
 
-  const termoBusca = busca.trim().toLocaleLowerCase('pt-BR')
+  const termoBusca = normalizarTexto(busca.trim())
 
-  const funcionariosFiltrados = funcionarios.filter((funcionario) =>
-    funcionario.nome.toLocaleLowerCase('pt-BR').includes(termoBusca),
-  )
+  const funcionariosFiltrados = funcionarios.filter((funcionario) => {
+    const nome = normalizarTexto(funcionario.nome)
+    const cargo = normalizarTexto(funcionario.cargo)
+    const status = normalizarTexto(funcionario.status)
+
+    return (
+      nome.includes(termoBusca) ||
+      cargo.includes(termoBusca) ||
+      status.includes(termoBusca)
+    )
+  })
 
   const emAnalise = funcionarios.filter(
     (funcionario) => funcionario.status === 'EM_ANALISE',
@@ -128,8 +144,8 @@ function FuncionariosPage() {
 
           <input
             type="search"
-            placeholder="Buscar por nome..."
-            aria-label="Buscar funcionário por nome"
+            placeholder="Buscar por nome, cargo ou status..."
+            aria-label="Buscar funcionário por nome, cargo ou status"
             value={busca}
             onChange={(evento) => setBusca(evento.target.value)}
           />
