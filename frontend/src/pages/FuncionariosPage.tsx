@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { listarFuncionarios } from '../services/funcionarioService'
 import type { Funcionario } from '../types/Funcionario'
 import './FuncionariosPage.css'
@@ -86,9 +87,9 @@ function FuncionariosPage() {
         <div className="titulo-acoes">
           <h1 className="funcionarios-titulo">Funcionários</h1>
 
-          <button type="button" className="botao-adicionar">
+          <Link to="/funcionarios/novo" className="botao-adicionar">
             + Adicionar
-          </button>
+          </Link>
         </div>
 
         <div className="indicadores">
@@ -143,9 +144,12 @@ function FuncionariosPage() {
                     <td>{funcionario.status}</td>
 
                     <td className="acoes">
-                      <button type="button" className="botao-acao">
+                      <Link
+                        to={`/funcionarios/${funcionario.id}`}
+                        className="botao-acao"
+                      >
                         Visualizar
-                      </button>
+                      </Link>
 
                       <button
                         type="button"
