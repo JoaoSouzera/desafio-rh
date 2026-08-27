@@ -3,6 +3,7 @@ package com.desafiorh.backend.controller;
 import com.desafiorh.backend.dto.request.FuncionarioPatchDTO;
 import com.desafiorh.backend.dto.request.FuncionarioRequestDTO;
 import com.desafiorh.backend.dto.response.FuncionarioResponseDTO;
+import com.desafiorh.backend.model.Funcionario;
 import com.desafiorh.backend.service.FuncionarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +28,15 @@ public class FuncionarioController {
     public FuncionarioResponseDTO criar(@RequestBody @Valid FuncionarioRequestDTO funcionarioRequestDTO) {
         return service.criar(funcionarioRequestDTO);
     }
-
-    @GetMapping
-    public List<FuncionarioResponseDTO> listar() {
-        return service.listar();
-    }
-
     @GetMapping("/{id}")
     public FuncionarioResponseDTO pegarPorId(@PathVariable Integer id) {
         return service.pegarPorId(id);
+    }
+
+    @GetMapping
+    public List<FuncionarioResponseDTO> listarComFiltro(
+            @RequestParam(required = false) String busca) {
+        return service.buscarComFiltro(busca);
     }
 
     @PutMapping("/{id}")

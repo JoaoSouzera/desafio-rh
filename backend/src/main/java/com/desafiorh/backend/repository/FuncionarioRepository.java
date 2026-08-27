@@ -4,6 +4,8 @@ import com.desafiorh.backend.model.Funcionario;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
+
 @Repository
 public class FuncionarioRepository {
     ArrayList<Funcionario> funcionarios = new ArrayList<>();
@@ -32,5 +34,20 @@ public class FuncionarioRepository {
     }
     public void deletar(Funcionario funcionario) {
         funcionarios.remove(funcionario);
+    }
+
+    public List<Funcionario> buscarComFiltro(String param){
+        if (param == null || param.isBlank()){
+            return funcionarios;
+        }
+        String busca = param.trim().toLowerCase();
+
+        return funcionarios.stream()
+                .filter(funcionario ->
+                        funcionario.getNome().toLowerCase().contains(param)
+                                || funcionario.getCargo().toLowerCase().contains(param)
+                                || funcionario.getStatus().toString().toLowerCase().contains(param)
+                )
+                .toList();
     }
 }
