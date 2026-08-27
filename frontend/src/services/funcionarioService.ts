@@ -1,6 +1,10 @@
 const API_URL = "http://localhost:8080/funcionarios";
 
-import type { Funcionario, FuncionarioRequest } from "../types/Funcionario";
+import type {
+    Funcionario,
+    FuncionarioPatchRequest,
+    FuncionarioRequest,
+} from "../types/Funcionario";
 
 export async function listarFuncionarios(): Promise<Funcionario[]> {
     const response = await fetch(API_URL);
@@ -57,4 +61,50 @@ export async function deletarFuncionario(id: number): Promise<void> {
 
         throw new Error("Não foi possível excluir o funcionário");
     }
+}
+
+export async function atualizarFuncionarioCompleto(
+    id: number,
+    funcionario: FuncionarioRequest,
+): Promise<Funcionario> {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(funcionario),
+    });
+
+    if (!response.ok) {
+        if (response.status === 404) {
+            throw new Error("Funcionário não encontrado");
+        }
+
+        throw new Error("Não foi possível atualizar o funcionário");
+    }
+
+    return response.json();
+}
+
+export async function atualizarFuncionarioParcial(
+    id: number,
+    alteracoes: FuncionarioPatchRequest,
+): Promise<Funcionario> {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(alteracoes),
+    });
+
+    if (!response.ok) {
+        if (response.status === 404) {
+            throw new Error("Funcionário não encontrado");
+        }
+
+        throw new Error("Não foi possível atualizar o funcionário");
+    }
+
+    return response.json();
 }

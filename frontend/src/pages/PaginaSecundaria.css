@@ -132,6 +132,26 @@
   margin: 0;
 }
 
+.detalhes-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.detalhes-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.edicao-explicacao {
+  margin: -10px 0 24px;
+  color: #496b63;
+  line-height: 1.5;
+}
+
 .detalhes-funcionario div {
   padding: 16px;
   border-radius: 12px;
@@ -171,6 +191,15 @@
 
   .detalhes-funcionario {
     grid-template-columns: 1fr;
+  }
+
+  .detalhes-cabecalho {
+    flex-direction: column;
+  }
+
+  .detalhes-acoes {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .formulario-funcionario {

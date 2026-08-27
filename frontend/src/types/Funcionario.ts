@@ -17,3 +17,5 @@ export interface Funcionario {
 }
 
 export type FuncionarioRequest = Omit<Funcionario, 'id'>
+
+export type FuncionarioPatchRequest = Partial<FuncionarioRequest>

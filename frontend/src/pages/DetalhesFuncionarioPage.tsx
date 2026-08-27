@@ -52,7 +52,25 @@ function DetalhesFuncionarioPage() {
       {!carregando && !erro && funcionario && (
         <section className="pagina-secundaria-card">
           <p className="pagina-secundaria-etapa">Funcionário #{funcionario.id}</p>
-          <h1>{funcionario.nome}</h1>
+          <div className="detalhes-cabecalho">
+            <h1>{funcionario.nome}</h1>
+
+            <div className="detalhes-acoes">
+              <Link
+                to={`/funcionarios/${funcionario.id}/editar`}
+                className="botao-secundario"
+              >
+                Edição completa
+              </Link>
+
+              <Link
+                to={`/funcionarios/${funcionario.id}/editar-parcial`}
+                className="botao-principal"
+              >
+                Atualização parcial
+              </Link>
+            </div>
+          </div>
 
           <dl className="detalhes-funcionario">
             <div>
