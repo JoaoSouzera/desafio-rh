@@ -42,7 +42,16 @@ function EditarFuncionarioPage({ modo }: EditarFuncionarioPageProps) {
         setCarregando(true)
         setErro('')
         const dados = await buscarFuncionarioPorId(funcionarioId)
-        const { id: _id, ...dadosFormulario } = dados
+        const dadosFormulario: FuncionarioRequest = {
+          nome: dados.nome,
+          email: dados.email,
+          telefone: dados.telefone,
+          cargo: dados.cargo,
+          departamento: dados.departamento,
+          salario: dados.salario,
+          cidade: dados.cidade,
+          status: dados.status,
+        }
 
         setFuncionarioOriginal(dados)
         setFormulario(dadosFormulario)
