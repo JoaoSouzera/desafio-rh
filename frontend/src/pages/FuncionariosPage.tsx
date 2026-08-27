@@ -7,6 +7,7 @@ function FuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+  const [busca, setBusca] = useState('')
 
   useEffect(() => {
     async function carregarFuncionarios() {
@@ -29,6 +30,28 @@ function FuncionariosPage() {
 
     void carregarFuncionarios()
   }, [])
+
+  const termoBusca = busca.trim().toLocaleLowerCase('pt-BR')
+
+  const funcionariosFiltrados = funcionarios.filter((funcionario) =>
+    funcionario.nome.toLocaleLowerCase('pt-BR').includes(termoBusca),
+  )
+
+  const emAnalise = funcionarios.filter(
+    (funcionario) => funcionario.status === 'EM_ANALISE',
+  ).length
+
+  const aprovados = funcionarios.filter(
+    (funcionario) => funcionario.status === 'APROVADO',
+  ).length
+
+  const reprovados = funcionarios.filter(
+    (funcionario) => funcionario.status === 'REPROVADO',
+  ).length
+
+  const contratados = funcionarios.filter(
+    (funcionario) => funcionario.status === 'CONTRATADO',
+  ).length
 
   if (carregando) {
     return <p className="mensagem-estado">Carregando funcionários...</p>
@@ -53,6 +76,8 @@ function FuncionariosPage() {
             type="search"
             placeholder="Buscar por nome..."
             aria-label="Buscar funcionário por nome"
+            value={busca}
+            onChange={(evento) => setBusca(evento.target.value)}
           />
         </div>
       </header>
@@ -72,24 +97,28 @@ function FuncionariosPage() {
           </span>
 
           <span>
-            Em análise: <strong>...</strong>
+            Em análise: <strong>{emAnalise}</strong>
           </span>
 
           <span>
-            Aprovados: <strong>...</strong>
+            Aprovados: <strong>{aprovados}</strong>
           </span>
 
           <span>
-            Reprovados: <strong>...</strong>
+            Reprovados: <strong>{reprovados}</strong>
           </span>
 
           <span>
-            Contratados: <strong>...</strong>
+            Contratados: <strong>{contratados}</strong>
           </span>
         </div>
 
         {funcionarios.length === 0 ? (
           <p className="mensagem-estado">Nenhum funcionário cadastrado.</p>
+        ) : funcionariosFiltrados.length === 0 ? (
+          <p className="mensagem-estado">
+            Nenhum funcionário encontrado para “{busca}”.
+          </p>
         ) : (
           <div className="tabela-container">
             <table className="funcionarios-tabela">
@@ -105,7 +134,7 @@ function FuncionariosPage() {
               </thead>
 
               <tbody>
-                {funcionarios.map((funcionario) => (
+                {funcionariosFiltrados.map((funcionario) => (
                   <tr key={funcionario.id}>
                     <td>{funcionario.nome}</td>
                     <td>{funcionario.email}</td>
