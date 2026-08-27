@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "http://localhost:5174"
+})
+
 @RestController
 @RequestMapping("/funcionarios")
 @RequiredArgsConstructor
