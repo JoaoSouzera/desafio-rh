@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { listarFuncionarios } from '../services/funcionarioService'
+import ConfirmacaoExclusao from '../components/ConfirmacaoExclusao'
+import {
+  deletarFuncionario,
+  listarFuncionarios,
+} from '../services/funcionarioService'
 import type { Funcionario } from '../types/Funcionario'
 import './FuncionariosPage.css'
 
@@ -9,6 +13,10 @@ function FuncionariosPage() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [busca, setBusca] = useState('')
+  const [funcionarioParaExcluir, setFuncionarioParaExcluir] =
+    useState<Funcionario | null>(null)
+  const [excluindo, setExcluindo] = useState(false)
+  const [erroExclusao, setErroExclusao] = useState('')
 
   useEffect(() => {
     async function carregarFuncionarios() {
@@ -53,6 +61,48 @@ function FuncionariosPage() {
   const contratados = funcionarios.filter(
     (funcionario) => funcionario.status === 'CONTRATADO',
   ).length
+
+  function abrirConfirmacaoExclusao(funcionario: Funcionario) {
+    setFuncionarioParaExcluir(funcionario)
+    setErroExclusao('')
+  }
+
+  function fecharConfirmacaoExclusao() {
+    if (excluindo) {
+      return
+    }
+
+    setFuncionarioParaExcluir(null)
+    setErroExclusao('')
+  }
+
+  async function confirmarExclusao() {
+    if (!funcionarioParaExcluir) {
+      return
+    }
+
+    try {
+      setExcluindo(true)
+      setErroExclusao('')
+      await deletarFuncionario(funcionarioParaExcluir.id)
+
+      setFuncionarios((listaAtual) =>
+        listaAtual.filter(
+          (funcionario) => funcionario.id !== funcionarioParaExcluir.id,
+        ),
+      )
+
+      setFuncionarioParaExcluir(null)
+    } catch (error) {
+      setErroExclusao(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível excluir o funcionário',
+      )
+    } finally {
+      setExcluindo(false)
+    }
+  }
 
   if (carregando) {
     return <p className="mensagem-estado">Carregando funcionários...</p>
@@ -154,6 +204,7 @@ function FuncionariosPage() {
                       <button
                         type="button"
                         className="botao-acao botao-excluir"
+                        onClick={() => abrirConfirmacaoExclusao(funcionario)}
                       >
                         Excluir
                       </button>
@@ -165,6 +216,14 @@ function FuncionariosPage() {
           </div>
         )}
       </section>
+
+      <ConfirmacaoExclusao
+        funcionario={funcionarioParaExcluir}
+        excluindo={excluindo}
+        erro={erroExclusao}
+        onCancelar={fecharConfirmacaoExclusao}
+        onConfirmar={confirmarExclusao}
+      />
     </main>
   )
 }

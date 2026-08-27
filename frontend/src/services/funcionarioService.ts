@@ -44,3 +44,17 @@ export async function cadastrarFuncionario(
 
     return response.json();
 }
+
+export async function deletarFuncionario(id: number): Promise<void> {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+    });
+
+    if (!response.ok) {
+        if (response.status === 404) {
+            throw new Error("Funcionário não encontrado");
+        }
+
+        throw new Error("Não foi possível excluir o funcionário");
+    }
+}
