@@ -24,9 +24,9 @@
 }
 
 .marca-logo {
-  color: #00b96b;
-  font-size: 42px;
-  line-height: 1;
+  display: block;
+  width: 140px;
+  height: auto;
 }
 
 .marca-subtitulo {
@@ -161,6 +161,18 @@
   color: #173f35;
   background: transparent;
   text-decoration: none;
+}
+
+.icone-acao {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.icone-excluir {
+  width: 18px;
+  height: 18px;
 }
 
 .botao-acao:hover {

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ConfirmacaoExclusao from '../components/ConfirmacaoExclusao'
+import excluirIcone from '../assets/excluir.png'
+import picpayLogo from '../assets/picpay.svg'
+import verMaisIcone from '../assets/verMais.svg'
 import {
   deletarFuncionario,
   listarFuncionarios,
@@ -116,7 +119,7 @@ function FuncionariosPage() {
     <main className="funcionarios-page">
       <header className="cabecalho">
         <div className="marca">
-          <strong className="marca-logo">PicPay</strong>
+          <img src={picpayLogo} alt="PicPay" className="marca-logo" />
           <span className="marca-subtitulo">Recursos Humanos</span>
         </div>
 
@@ -197,16 +200,28 @@ function FuncionariosPage() {
                       <Link
                         to={`/funcionarios/${funcionario.id}`}
                         className="botao-acao"
+                        aria-label={`Visualizar ${funcionario.nome}`}
+                        title={`Visualizar ${funcionario.nome}`}
                       >
-                        Visualizar
+                        <img
+                          src={verMaisIcone}
+                          alt=""
+                          className="icone-acao"
+                        />
                       </Link>
 
                       <button
                         type="button"
                         className="botao-acao botao-excluir"
                         onClick={() => abrirConfirmacaoExclusao(funcionario)}
+                        aria-label={`Excluir ${funcionario.nome}`}
+                        title={`Excluir ${funcionario.nome}`}
                       >
-                        Excluir
+                        <img
+                          src={excluirIcone}
+                          alt=""
+                          className="icone-acao icone-excluir"
+                        />
                       </button>
                     </td>
                   </tr>
