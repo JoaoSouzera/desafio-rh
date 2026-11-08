@@ -58,3 +58,64 @@ jobs:
 
       - name: Compilar frontend
         run: npm run build
+
+  cd-backend:
+    name: CD Backend - Render
+    needs: [ci-backend, ci-frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Solicitar deployment no Render
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Secret RENDER_DEPLOY_HOOK_URL não configurado."
+            exit 1
+          fi
+          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Informar status do acionamento
+        run: echo "Deployment solicitado ao Render; confira a conclusão no painel do serviço."
+
+  cd-frontend:
+    name: CD Frontend - Vercel
+    needs: [ci-backend, ci-frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validar credenciais da Vercel
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "Confira VERCEL_TOKEN (Secret), VERCEL_ORG_ID e VERCEL_PROJECT_ID (Variables)."
+            exit 1
+          fi
+
+      - name: Instalar Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Carregar configurações de produção
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Preparar build de produção
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Publicar frontend
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
