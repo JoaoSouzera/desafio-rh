@@ -15,7 +15,8 @@ import org.springframework.http.HttpStatus;
 
 @CrossOrigin(origins = {
     "http://localhost:5173",
-    "http://localhost:5174"
+    "http://localhost:5174",
+    "https://desafio-rh.vercel.app"
 })
 
 @RestController
