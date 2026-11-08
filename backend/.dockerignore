@@ -1,0 +1,21 @@
+# Arquivos gerados pelo Maven
+target/
+
+# Configurações locais do Maven
+.mvn/
+
+# Arquivos do Git
+.git/
+.gitignore
+
+# Configurações de IDEs
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Arquivos temporários do sistema
+.DS_Store
+Thumbs.db
