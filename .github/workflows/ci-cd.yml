@@ -84,9 +84,8 @@ jobs:
     needs: [ci-backend, ci-frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+    # Vercel já usa Root Directory = frontend no projeto.
+    # A CLI deve partir da raiz do repositório para evitar frontend/frontend.
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
