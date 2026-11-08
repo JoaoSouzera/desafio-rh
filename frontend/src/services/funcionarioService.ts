@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/funcionarios";
+const API_URL = `${import.meta.env.VITE_API_URL}/funcionarios`;
 
 import type {
     Funcionario,
