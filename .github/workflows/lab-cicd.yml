@@ -1,4 +1,4 @@
-name: CI/CD - Desafio RH
+name: Lab CI/CD - Desafio RH
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-cd-${{ github.workflow }}-${{ github.ref }}
+  group: lab-cicd-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

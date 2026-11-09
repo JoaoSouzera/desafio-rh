@@ -119,7 +119,7 @@ A API ficará disponível em `http://localhost:8080`.
 
 ## Pipeline CI/CD
 
-O workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) executa:
+O workflow [`.github/workflows/lab-cicd.yml`](.github/workflows/lab-cicd.yml) executa:
 
 - em todo `push` ou `pull_request` para `main`, testes Maven e validação da imagem Docker do backend;
 - em todo `push` ou `pull_request` para `main`, instalação reproduzível, lint e build do frontend;
