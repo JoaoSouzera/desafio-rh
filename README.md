@@ -108,6 +108,44 @@ npm run dev
 
 O Vite informará o endereço local da aplicação no terminal.
 
+### Back-end com Docker
+
+```bash
+docker build -t desafio-rh-backend ./backend
+docker run --rm -p 8080:10000 -e PORT=10000 desafio-rh-backend
+```
+
+A API ficará disponível em `http://localhost:8080`.
+
+## Pipeline CI/CD
+
+O workflow [`.github/workflows/lab-cicd.yml`](.github/workflows/lab-cicd.yml) executa:
+
+- em todo `push` ou `pull_request` para `main`, testes Maven e validação da imagem Docker do backend;
+- em todo `push` ou `pull_request` para `main`, instalação reproduzível, lint e build do frontend;
+- após um `push` na `main` com as duas CIs aprovadas, publica o backend no Docker Hub com as tags `latest` e o SHA do commit;
+- em seguida, solicita ao Render o deploy da imagem correspondente ao commit;
+- em paralelo, compila e publica o frontend de produção na Vercel.
+
+### Configuração do GitHub
+
+Crie os environments `production-backend` e `production-frontend` em **Settings > Environments**. Depois, em **Settings > Secrets and variables > Actions**, configure:
+
+| Tipo | Nome | Finalidade |
+| --- | --- | --- |
+| Variable | `DOCKERHUB_USERNAME` | Usuário da conta Docker Hub |
+| Variable | `DOCKERHUB_IMAGE` | Repositório completo da imagem, por exemplo `anablefari/desafio-rh-backend` |
+| Secret | `DOCKERHUB_TOKEN` | Personal access token do Docker Hub |
+| Secret | `RENDER_DEPLOY_HOOK_URL` | Deploy Hook secreto do serviço Render baseado na imagem Docker |
+| Variable | `BACKEND_PUBLIC_URL` | URL pública do backend, sem barra final |
+| Variable | `VERCEL_ORG_ID` | ID da conta ou organização Vercel |
+| Variable | `VERCEL_PROJECT_ID` | ID do projeto Vercel configurado com Root Directory `frontend` |
+| Secret | `VERCEL_TOKEN` | Token de acesso da Vercel |
+
+No Render, crie ou configure um Web Service baseado na imagem pública indicada por `DOCKERHUB_IMAGE`, usando a tag `latest`. O deploy hook recebe da pipeline a tag imutável do commit, garantindo que a versão publicada seja a mesma que acabou de passar pela CI.
+
+Na Vercel, mantenha o deployment automático pela integração Git desabilitado, pois a publicação é controlada pelo GitHub Actions somente depois da CI.
+
 ## Estrutura do projeto
 
 ```text
