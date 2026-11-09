@@ -1,4 +1,4 @@
-name: CI - Desafio RH
+name: CI/CD - Desafio RH
 
 on:
   push:
@@ -9,20 +9,25 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci-backend:
-    name: Backend - Maven verify
+    name: Backend - testes e imagem Docker
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
 
     steps:
       - name: Checkout do repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurar Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
@@ -32,19 +37,33 @@ jobs:
       - name: Compilar e executar testes
         run: bash ./mvnw --batch-mode --no-transfer-progress clean verify
 
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Validar build da imagem Docker
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          file: backend/Dockerfile
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
   ci-frontend:
     name: Frontend - lint e build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: frontend
 
     steps:
       - name: Checkout do repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurar Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -60,57 +79,96 @@ jobs:
         run: npm run build
 
   cd-backend:
-    name: CD Backend - Render
+    name: CD Backend - Docker Hub e Render
     needs: [ci-backend, ci-frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-backend
+    env:
+      DOCKER_IMAGE: ${{ vars.DOCKERHUB_IMAGE }}
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
     steps:
-      - name: Solicitar deployment no Render
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: Checkout do repositório
+        uses: actions/checkout@v7
+
+      - name: Validar configuração do backend
+        shell: bash
         run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "Secret RENDER_DEPLOY_HOOK_URL não configurado."
+          if [ -z "$DOCKER_IMAGE" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ] || [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Configure DOCKERHUB_IMAGE e DOCKERHUB_USERNAME como Variables; DOCKERHUB_TOKEN e RENDER_DEPLOY_HOOK_URL como Secrets."
             exit 1
           fi
-          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
 
-      - name: Informar status do acionamento
-        run: echo "Deployment solicitado ao Render; confira a conclusão no painel do serviço."
+      - name: Autenticar no Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Publicar imagem do backend
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          file: backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Publicar a nova imagem no Render
+        shell: bash
+        run: |
+          curl --fail --silent --show-error \
+            --request POST \
+            --get \
+            --data-urlencode "imgURL=docker.io/${DOCKER_IMAGE}:${GITHUB_SHA}" \
+            "$RENDER_DEPLOY_HOOK_URL"
 
   cd-frontend:
     name: CD Frontend - Vercel
     needs: [ci-backend, ci-frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # Vercel já usa Root Directory = frontend no projeto.
-    # A CLI deve partir da raiz do repositório para evitar frontend/frontend.
+    timeout-minutes: 15
+    environment: production-frontend
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
-      VITE_API_URL: https://desafio-rh.onrender.com
+      VITE_API_URL: ${{ vars.BACKEND_PUBLIC_URL }}
 
     steps:
       - name: Checkout do repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurar Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
-      - name: Validar credenciais da Vercel
+      - name: Validar configuração do frontend
+        shell: bash
         run: |
-          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "Confira VERCEL_TOKEN (Secret), VERCEL_ORG_ID e VERCEL_PROJECT_ID (Variables)."
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ] || [ -z "$VITE_API_URL" ]; then
+            echo "Configure VERCEL_TOKEN como Secret; VERCEL_ORG_ID, VERCEL_PROJECT_ID e BACKEND_PUBLIC_URL como Variables."
             exit 1
           fi
 
       - name: Instalar Vercel CLI
         run: npm install --global vercel@latest
 
+      # O projeto Vercel usa Root Directory = frontend. A CLI parte da raiz
+      # para evitar que a configuração resulte no caminho frontend/frontend.
       - name: Carregar configurações de produção
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
